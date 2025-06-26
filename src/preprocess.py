@@ -38,7 +38,7 @@ def preprocess_audio(file_path, target_sr=16000):
 if __name__ == '__main__':
     # Place an example audio file in your 'data' folder
     # For example, 'data/sample_audio.wav'
-    input_audio_path = 'data/Voice.wav' 
+    input_audio_path = 'data/sample_audio.wav' 
     
     processed_waveform, sample_rate = preprocess_audio(input_audio_path)
     

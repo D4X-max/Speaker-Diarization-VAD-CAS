@@ -81,7 +81,7 @@ def write_rttm_file(diarization, output_rttm_path, audio_filename="my_audio"):
 # --- Example Usage ---
 if __name__ == '__main__':
     try:
-        input_audio_path = 'data/Voice.wav'
+        input_audio_path = 'data/sample_audio.wav'
         output_dir_csv = 'csv_output'
         output_dir_rttm = 'rttm_output'
         # Get the base name of the audio file to use in output filenames
