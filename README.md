@@ -270,3 +270,49 @@ Feel free to fork the repository, open issues, or submit pull requests.
 *   **pyannote.audio:** For providing the robust speaker diarization pipeline.
 *   **Hugging Face:** For hosting the models and providing authentication services.
 *   **Other libraries:** librosa, numpy, matplotlib, soundfile, torch, etc.
+*   
+
+graph TD
+    A[Start: User runs a script] --> B{Choose Script};
+
+    B --> C[src/diarize.py];
+    C --> D[src/preprocess.py::preprocess_audio];
+    D --> E[src/diarize.py::run_diarization (Pyannote Pipeline)];
+    E -- Diarization Result --> F{Output Files};
+    F --> G[outputs/*.csv];
+    F --> H[outputs/*.rttm];
+
+    B --> I[src/speaker_change_detection.py];
+    I --> D;
+    I --> E;
+    E -- Diarization Result --> J{Console Output};
+    J -- Speaker Changes --> K[Display Changes];
+    I -- Saves to --> F;
+
+    B --> L[src/visualize.py];
+    L --> M{Load RTTM?};
+    M -- Yes --> N[read_rttm_manual];
+    M -- No --> D;
+    M -- No --> E;
+    E -- Diarization Result --> O[plot_diarization];
+    N -- Diarization Data --> O;
+    O -- Plot PNG --> P[plots/*.png];
+
+    B --> Q[src/evaluate.py];
+    Q --> R[read_rttm_to_annotation (Reference)];
+    Q --> S[read_rttm_to_annotation (Hypothesis)];
+    R & S --> T[pyannote.metrics.DiarizationErrorRate];
+    T --> U{Output DER};
+    U --> V[Console Output];
+    U --> W[outputs/*.json (Optional)];
+
+    subgraph External
+        X[Hugging Face Models]
+        Y[Input Audio File]
+        Z[Ground Truth RTTM File]
+    end
+
+    Y --> D;
+    X -- Download/Use --> E;
+    Z --> R;
+
