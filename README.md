@@ -41,6 +41,86 @@ The system is designed for modularity, reproducibility, and ease of use, with fu
 ├── requirements.txt # Python dependencies
 └── README.md # This file
 
+## Project Architecture / System Flow
+
+Here's a high-level overview of how the different components of the diarization system interact and how data flows through them.
+
+graph TD
+%% Define main nodes for each script/function
+subgraph User Interaction
+A[User runs a script] -- Triggers --> B{Main Script Execution};
+end
+subgraph Core Modules (src/)
+    C1[src/preprocess.py::preprocess_audio]
+    C2[src/diarize.py::run_diarization]
+    C3[src/evaluate.py::evaluate_diarization]
+    C4[src/speaker_change_detection.py::run_speaker_change_detection]
+    C5[src/visualize.py::plot_diarization]
+    C6[src/visualize.py::read_rttm_manual]
+end
+
+subgraph External Resources / Outputs
+    E1[Input Audio File]
+    E2[Hugging Face Models / Token]
+    E3[Ground Truth RTTM File]
+    O1[outputs/*.csv]
+    O2[outputs/*.rttm]
+    O3[plots/*.png]
+    O4[Console Output]
+    O5[outputs/*.json (DER Results)]
+end
+
+%% Define the flow
+%% diarzise.py flow
+B -- Call --> C2;
+C2 -- Needs --> C1;
+C1 -- Waveform, SR --> C2;
+E1 -- Input --> C1;
+E2 -- Access --> C2; %% Authentication and model download
+
+C2 -- Diarization Annotation --> O1;
+C2 -- Diarization Annotation --> O2;
+
+%% speaker_change_detection.py flow
+B -- Call --> C4;
+C4 -- Needs --> C1;
+C1 -- Waveform, SR --> C4;
+C4 -- Needs --> C2;
+C2 -- Diarization Annotation --> C4;
+E1 -- Input --> C1;
+E2 -- Access --> C2;
+C4 -- Speaker Change Events --> O4;
+C4 -- Also saves to --> O1;
+C4 -- Also saves to --> O2;
+
+%% visualize.py flow
+B -- Call --> C5;
+C5 -- Needs --> C1;
+C1 -- Waveform, SR --> C5;
+B -- Conditional --> Cond1{RTTM File Provided?};
+Cond1 -- Yes --> C6;
+Cond1 -- No --> C2;
+C6 -- Diarization Annotation --> C5;
+C2 -- Diarization Annotation --> C5;
+E1 -- Input --> C1;
+E3 -- Input --> C6;
+E2 -- Access --> C2; %% For live diarization
+C5 -- Plot Image --> O3;
+
+%% evaluate.py flow
+B -- Call --> C3;
+C3 -- Needs --> C6; %% For both reference and hypothesis
+E3 -- Reference --> C6;
+O2 -- Hypothesis --> C6; %% Diarization output RTTM as hypothesis
+C3 -- DER Results --> O4;
+C3 -- Optional --> O5;
+
+%% Data Flow outside direct calls
+E1 -- Used by --> C4; %% Direct link for clarity
+E1 -- Used by --> C5; %% Direct link for clarity
+E3 -- Used by --> C3; %% Direct link for clarity
+
+
 
 ## Setup and Installation
 
