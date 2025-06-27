@@ -1,61 +1,73 @@
 import json
 import os
+import sys
+import argparse
 from pyannote.core import Annotation, Segment
 from pyannote.metrics.diarization import DiarizationErrorRate
+import logging
 
-# --- Custom RTTM Reader Function ---
-# This function makes our script independent of the pyannote.database RTTM parser location,
-# which has changed across versions. This is the most stable approach.
-def read_rttm_to_annotation(file_path):
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def read_rttm_to_annotation(file_path: str) -> Annotation:
     """
     Reads an RTTM file and returns a pyannote.core.Annotation object.
+
+    Args:
+        file_path (str): Path to the RTTM file.
+
+    Returns:
+        Annotation: The diarization annotation.
     """
     uri = os.path.splitext(os.path.basename(file_path))[0]
-    annotation = Annotation(uri=uri) # Create an annotation with the file's URI
-    
-    with open(file_path, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if not parts or parts[0] != 'SPEAKER':
-                continue # Skip empty or non-speaker lines
-            
-            # RTTM format: SPEAKER <file_id> <channel> <start> <duration> <NA> <NA> <speaker_id> <NA> <NA>
-            start_time = float(parts[3])
-            duration = float(parts[4])
-            speaker_id = parts[7]
-            
-            segment = Segment(start_time, start_time + duration)
-            annotation[segment, speaker_id] = speaker_id # Assign speaker to segment
-            
+    annotation = Annotation(uri=uri)
+
+    try:
+        with open(file_path, 'r') as f:
+            for line in f:
+                parts = line.strip().split()
+                if not parts or parts[0] != 'SPEAKER':
+                    continue
+
+                start_time = float(parts[3])
+                duration = float(parts[4])
+                speaker_id = parts[7]
+
+                segment = Segment(start_time, start_time + duration)
+                annotation[segment] = speaker_id  # Correct assignment syntax
+    except Exception as e:
+        logger.error(f"Error reading RTTM file '{file_path}': {e}")
+        sys.exit(1)
+
     return annotation
 
-
-def evaluate_diarization(reference_rttm_path, hypothesis_rttm_path, output_json_path=None):
+def evaluate_diarization(reference_rttm_path: str, hypothesis_rttm_path: str, output_json_path: str = None):
     """
-    Computes the Diarization Error Rate (DER) and optionally saves detailed results to JSON.
-    """
-    try:
-        # Load annotations using our custom reader function
-        reference = read_rttm_to_annotation(reference_rttm_path)
-        hypothesis = read_rttm_to_annotation(hypothesis_rttm_path)
-    except Exception as e:
-        print(f"Error loading RTTM files with custom parser: {e}")
-        return
+    Computes Diarization Error Rate (DER) between reference and hypothesis RTTM files.
 
-    # Initialize the metric
+    Args:
+        reference_rttm_path (str): Path to ground truth RTTM file.
+        hypothesis_rttm_path (str): Path to hypothesis RTTM file.
+        output_json_path (str, optional): Path to save detailed DER results as JSON.
+    """
+    logger.info(f"Loading reference RTTM from: {reference_rttm_path}")
+    reference = read_rttm_to_annotation(reference_rttm_path)
+
+    logger.info(f"Loading hypothesis RTTM from: {hypothesis_rttm_path}")
+    hypothesis = read_rttm_to_annotation(hypothesis_rttm_path)
+
     der_metric = DiarizationErrorRate()
 
-    # Compute the metric and request detailed components
     uem = reference.get_timeline()
-    der_components = der_metric(reference, hypothesis, uem=uem, detailed=True) 
+    der_components = der_metric(reference, hypothesis, uem=uem, detailed=True)
 
     overall_der = der_components['diarization error rate']
 
-    print("\n--- Diarization Evaluation ---")
+    logger.info("\n--- Diarization Evaluation ---")
     der_metric.report(display=True)
-    print(f"\nFinal DER = {overall_der*100:.2f}%")
-    
-    # Prepare data for JSON export
+    logger.info(f"Final DER = {overall_der * 100:.2f}%")
+
     json_output_data = {
         "overall_der": overall_der,
         "der_percentage": round(overall_der * 100, 2),
@@ -68,36 +80,35 @@ def evaluate_diarization(reference_rttm_path, hypothesis_rttm_path, output_json_
         "hypothesis_file": hypothesis_rttm_path
     }
 
-    # Save to JSON file if path is provided
     if output_json_path:
         try:
             os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
             with open(output_json_path, 'w') as f:
                 json.dump(json_output_data, f, indent=4)
-            print(f"DER results successfully saved to {output_json_path}")
+            logger.info(f"DER results saved to JSON file: {output_json_path}")
         except Exception as e:
-            print(f"Error saving DER results to JSON: {e}")
+            logger.error(f"Error saving DER results to JSON: {e}")
 
-
-# --- Example Usage ---
 if __name__ == '__main__':
-    audio_filename_base = "sample_audio" 
+    parser = argparse.ArgumentParser(description="Evaluate speaker diarization using DER metric.")
+    parser.add_argument("reference_rttm", type=str, help="Path to ground truth RTTM file.")
+    parser.add_argument("hypothesis_rttm", type=str, help="Path to hypothesis RTTM file.")
+    parser.add_argument("--output_json", type=str, default=None, help="Optional path to save detailed DER results as JSON.")
 
-    reference_path = os.path.join("data", f"{audio_filename_base}.rttm")
-    output_dir = "rttm_output"
-    der_output = "DER" 
-    hypothesis_path = os.path.join(output_dir, f"{audio_filename_base}_diarization.rttm")
-    der_json_path = os.path.join(der_output, f"{audio_filename_base}_der_results.json")
+    args = parser.parse_args()
 
-    if not os.path.exists(reference_path):
-        print(f"Error: Ground truth file not found at {reference_path}")
-    elif not os.path.exists(hypothesis_path):
-        print(f"Error: Hypothesis file not found at {hypothesis_path}")
-        print("Please run 'python src/diarize.py' first.")
-    else:
-        evaluate_diarization(reference_path, hypothesis_path, output_json_path=der_json_path)
+    if not os.path.exists(args.reference_rttm):
+        logger.error(f"Reference RTTM file not found: {args.reference_rttm}")
+        sys.exit(1)
 
-    print("\nEvaluation complete.")
+    if not os.path.exists(args.hypothesis_rttm):
+        logger.error(f"Hypothesis RTTM file not found: {args.hypothesis_rttm}")
+        logger.error("Please run the diarization script first to generate hypothesis RTTM.")
+        sys.exit(1)
+
+    evaluate_diarization(args.reference_rttm, args.hypothesis_rttm, args.output_json)
+    logger.info("Evaluation complete.")
+
 
 
 
