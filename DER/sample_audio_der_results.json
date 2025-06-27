@@ -1,0 +1,11 @@
+{
+    "overall_der": 0.006303417691210597,
+    "der_percentage": 0.63,
+    "components": {
+        "false_alarm_seconds": 0.0,
+        "missed_detection_seconds": 1.21,
+        "total_speech_seconds": 192.12
+    },
+    "reference_file": "data\\sample_audio.rttm",
+    "hypothesis_file": "rttm_output\\sample_audio_diarization.rttm"
+}
