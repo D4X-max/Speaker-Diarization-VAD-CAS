@@ -4,6 +4,9 @@
 
 This project implements a robust speaker diarization system capable of automatically detecting and segmenting speakers in an audio file. It leverages state-of-the-art Voice Activity Detection (VAD) and speaker clustering techniques using the `pyannote.audio` library to identify speaker boundaries and assign unique labels to each segment.
 
+# File Structure
+![alt text](image.png)
+
 ## 2. Core Features Implemented
 
 *   **Audio Preprocessing:** Handles loading, resampling (to 16kHz), and normalization of audio files.
