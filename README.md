@@ -24,22 +24,23 @@ The system is designed for modularity, reproducibility, and ease of use, with fu
 *   **Docker Support:** The entire system is containerized using Docker, ensuring high reproducibility and simplified deployment across different environments.
 
 ## Project Structure
-.
+my-project/
 ├── data/
-│ └── sample_audio.wav # Example input audio file (add your own)
-│ └── sample_audio.rttm # Corresponding ground truth RTTM for evaluation (add your own)
-├── outputs/ # Directory for diarization output (CSV, RTTM) - created automatically
-├── plots/ # Directory for visualization plots (PNG) - created automatically
+│   ├── sample_audio.wav         # Example input audio file (add your own)
+│   └── sample_audio.rttm        # Corresponding ground truth RTTM for evaluation (add your own)
+├── outputs/                     # Directory for diarization output (CSV, RTTM) - created automatically
+├── plots/                       # Directory for visualization plots (PNG) - created automatically
 ├── src/
-│ ├── preprocess.py # Audio preprocessing module
-│ ├── diarize.py # Main diarization script (uses pyannote pipeline)
-│ ├── speaker_change_detection.py # Speaker change detection module
-│ ├── visualize.py # Speaker diarization visualization module
-│ └── evaluate.py # Diarization evaluation module (calculates DER)
-├── archive/ # (Optional) Contains older or experimental code (e.g., vad.py, embedding.py if not used)
-├── Dockerfile # Dockerfile for containerization
-├── requirements.txt # Python dependencies
-└── README.md # This file
+│   ├── preprocess.py            # Audio preprocessing module
+│   ├── diarize.py               # Main diarization script (uses pyannote pipeline)
+│   ├── speaker_change_detection.py # Speaker change detection module
+│   ├── visualize.py             # Speaker diarization visualization module
+│   └── evaluate.py              # Diarization evaluation module (calculates DER)
+├── archive/                     # (Optional) Contains older or experimental code (e.g., vad.py, embedding.py if not used)
+├── Dockerfile                   # Dockerfile for containerization
+├── requirements.txt             # Python dependencies
+└── README.md                    # This file
+
 
 ## Project Architecture / System Flow
 
