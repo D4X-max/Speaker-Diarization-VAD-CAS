@@ -258,8 +258,6 @@ You can run all the above commands within a Docker container to ensure a consist
     ```
 
 ## Contributing
-
-(Optional section for future development, you can remove if not relevant)
 Feel free to fork the repository, open issues, or submit pull requests.
 
 ## License
