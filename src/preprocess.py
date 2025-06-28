@@ -66,6 +66,20 @@ def preprocess_audio(file_path: str, target_sr: int = 16000) -> Tuple[Optional[n
     duration = librosa.get_duration(y=waveform, sr=sr)
     logger.info(f"Preprocessed {os.path.basename(file_path)}. Duration: {duration:.2f}s") # Use logger.info for general info
 
+    try:
+        output_dir = 'processed_data'
+        os.makedirs(output_dir, exist_ok=True) # Create the directory if it doesn't exist
+        
+        base_filename = os.path.basename(file_path)
+        output_path = os.path.join(output_dir, f"processed_{base_filename}")
+        
+        sf.write(output_path, waveform, sr)
+        logger.info(f"Saved processed audio for verification to: {output_path}")
+    except Exception as e:
+        logger.error(f"Could not save preprocessed file: {e}")
+        # We log the error but don't stop the function, as returning the waveform is the primary goal.
+
+    # The function still returns the in-memory waveform and sample rate as before
     return waveform, sr
 
 # --- Example Usage ---

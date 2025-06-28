@@ -57,3 +57,10 @@ instance/
 # Misc
 *.sqlite3
 *.db
+
+# Project-specific generated outputs
+outputs/
+
+plots/
+
+processed_data/
