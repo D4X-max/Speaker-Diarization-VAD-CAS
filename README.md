@@ -24,7 +24,8 @@ The system is designed for modularity, reproducibility, and ease of use, with fu
 *   **Docker Support:** The entire system is containerized using Docker, ensuring high reproducibility and simplified deployment across different environments.
 
 ## Project Structure
-![image](https://github.com/user-attachments/assets/a419acd5-4c65-417f-9444-e24eff0c7eb2)
+![image](https://github.com/user-attachments/assets/9a01dcff-e8bd-45f9-b06e-afd53ac47bf6)
+
 
 
 
