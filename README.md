@@ -30,7 +30,8 @@ The system is designed for modularity, reproducibility, and ease of use, with fu
 
 
 ## Project Architecture / System Flow
-![image](https://github.com/user-attachments/assets/fd6fd298-0b6f-47ff-bd67-117fd35e675b)
+![mermaid-diagram-2025-06-28-130120](https://github.com/user-attachments/assets/e72de815-bab4-414e-b3d7-a4757013b115)
+
 
 
 ## Setup and Installation
