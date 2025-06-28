@@ -89,6 +89,38 @@ This project uses models from Hugging Face Hub (specifically `pyannote/speaker-d
 
 This project provides several scripts for different functionalities. All scripts should be run from the project's root directory.
 
+### Running the Full Pipeline (Recommended)
+
+For a streamlined workflow, the `src/main.py` script orchestrates the entire process: preprocessing, diarization, saving outputs, generating a visualization plot, and performing evaluation (if a ground truth RTTM is available).
+
+**Command**
+
+python -m src.main <path_to_input_audio> --auth_token <your_hugging_face_token> [OPTIONS]
+
+
+**Arguments**
+*   `**<path_to_input_audio>**`: *(Required)* Path to your `.wav` or `.flac` audio file (e.g., `data/sample_audio.wav`).
+*   `**--auth_token <your_hugging_face_token>**`: *(Required)* Your Hugging Face authentication token.
+
+**Options**
+*   `**--min_speakers <int>**`: Minimum number of speakers expected (e.g., `2`).
+*   `**--max_speakers <int>**`: Maximum number of speakers expected (e.g., `5`).
+*   `**--clustering_threshold <float>**`: Threshold for clustering speaker embeddings (e.g., `0.7`).
+
+**Example**
+
+python -m src.main data/sample_audio.wav --auth_token hf_YOUR_TOKEN_HERE --min_speakers 2
+
+
+**Output**
+This single command will:
+1.  Print log messages for each step to the console.
+2.  Save diarization results to the `outputs/` directory (`.rttm` and `.csv` files).
+3.  Save a visualization plot to the `plots/` directory (`.png` file).
+4.  Print evaluation results (DER) to the console if a corresponding ground truth RTTM file exists (e.g., `data/sample_audio.rttm`).
+5.  Save detailed evaluation results to the `outputs/` directory (`.json` file).
+
+### Advanced (Running each file seperately)
 ### 1. Running Speaker Diarization
 
 The main diarization script processes an audio file and outputs RTTM and CSV files.
