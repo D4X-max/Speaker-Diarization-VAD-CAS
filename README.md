@@ -280,6 +280,13 @@ You can run all the above commands within a Docker container to ensure a consist
       speaker-diarization-app \
       python /app/src/evaluate.py /app/data/sample_audio.rttm /app/outputs/sample_audio_diarization.rttm --output_json /app/outputs/sample_audio_der.json
     ```
+---
+### Project Working Demo 
+
+
+https://github.com/user-attachments/assets/a987bdcd-764d-432e-aa12-aa2fa8fe9980
+
+---
 
 ## Contributing
 Feel free to fork the repository, open issues, or submit pull requests.
